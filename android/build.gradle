@@ -1,0 +1,79 @@
+group 'io.flutter.plugins.googlemobileads'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.3'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdk 35
+
+    if (project.android.hasProperty('namespace')) {
+        namespace 'io.flutter.plugins.googlemobileads'
+    }
+
+    defaultConfig {
+        minSdk 21
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+    dependencies {
+        api 'com.google.android.gms:play-services-ads:23.6.0'
+        implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
+        implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+        implementation 'androidx.lifecycle:lifecycle-process:2.8.7'
+        implementation 'com.google.errorprone:error_prone_annotations:2.36.0'
+        testImplementation 'junit:junit:4.13.2'
+        testImplementation 'org.hamcrest:hamcrest:2.2'
+        // https://mvnrepository.com/artifact/org.mockito/mockito-core
+        testImplementation 'org.mockito:mockito-core:5.14.2'
+        testImplementation 'org.robolectric:robolectric:4.14.1'
+        testImplementation 'androidx.test:core:1.6.1'
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+afterEvaluate {
+    def containsEmbeddingDependencies = false
+    for (def configuration : configurations.all) {
+        for (def dependency : configuration.dependencies) {
+            if (dependency.group == 'io.flutter' &&
+                    dependency.name.startsWith('flutter_embedding') &&
+                    dependency.isTransitive()) {
+                containsEmbeddingDependencies = true
+                break
+            }
+        }
+    }
+    if (!containsEmbeddingDependencies) {
+        android {
+            dependencies {
+                def lifecycle_version = "1.1.1"
+                compileOnly "android.arch.lifecycle:runtime:$lifecycle_version"
+                compileOnly "android.arch.lifecycle:common:$lifecycle_version"
+                compileOnly "android.arch.lifecycle:common-java8:$lifecycle_version"
+            }
+        }
+    }
+}
